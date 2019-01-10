@@ -3,20 +3,67 @@
 title: Blog Posts
 permalink: /blog/
 ---
+{%- capture cat-list -%}
+  {%- for cat in site.categories -%}
+    {{ cat[0] | slugify }}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- capture cat-classes -%}
+  {%- for cat in site.categories %}
+    .{{ cat[0] | slugify }}
+  {%- endfor -%}
+{%- endcapture -%}
 
 <div id="blog-intro">
   <p class="lead">This space is for news and ponderings about music, games, meditation, life, and stuff. It's updated erratically.</p>
 </div>
 {% include subscribe.html %}
+<ul>
+  <li>
+    <button id="all-filter" class="btn btn-primary" type="button" data-toggle="false" aria-expanded="true" aria-controls="post">
+      All
+    </button>
+  </li>
+  {% for category in site.categories %}
+    {%- capture this-cat -%}
+      {{ category[0] | slugify }}
+    {%- endcapture -%}
+    {%- capture this-cat-class -%}
+      .{{ category[0] | slugify }}
+    {%- endcapture -%}
+    {%- capture other-cats -%}
+      {{ cat-list | remove: this-cat | strip }}
+    {%- endcapture -%}
+    {%- capture other-classes -%}
+      {{ cat-classes | remove: this-cat-class | strip }}
+    {%- endcapture -%}
+    <li>
+      <button id="{{ this-cat }}-filter" class="btn btn-primary blog-list-filter {{ this-cat }}" type="button" filtertarget=".{{ this-cat }}" data-toggle="false" aria-expanded="true" aria-controls="{{ this-cat }}">
+        {{ category[0] }}
+      </button>
+    </li>
+  {% endfor %}
+</ul>
 <hr/>
+<div id="blog-list">
 {% for post in site.posts %}
-  <h2 class="post-title">
-    <a href="{{ post.url }}">
-      {{ post.title }}
-    </a>
-  </h2>
-  <p class="post-date">posted {{ post.date | date: "%A, %B %-d, %Y %-I:%M %p" }}</p>
+  {% capture class %}
+    post collapse show
+    {% for category in post.categories %}
+      {{ category | slugify }}
+    {% endfor %}
+  {% endcapture %}
+  <div class="{{ class }}" id="{{ post.name | slugify }}" data-toggle="false">
+    <h2 class="post-title">
+      <a href="{{ post.url }}">
+        {{ post.title }}
+      </a>
+    </h2>
+    <p class="post-date">posted {{ post.date | date: "%A, %B %-d, %Y %-I:%M %p" }}</p>
     {{ post.excerpt }}
-  <p class="read-more" ><a href="{{ post.url }}">...read more...</a></p>
-  <hr/>
+    <p class="read-more" ><a href="{{ post.url }}">...read more...</a></p>
+    <hr/>
+  </div>
 {% endfor %}
+</div>
